@@ -1,0 +1,69 @@
+[00:00:00.444] Server  LOG      ✓ Ready in 306ms
+[00:00:35.552] Server  ERROR    ⨯ ./app/pedidos/page.tsx:27:5
+Parsing ecmascript source code failed
+  25 |     })
+  26 |     .finally(() => mounted && setLoading(false)
+> 27 |     return () => {
+     |     ^^^^^^
+  28 |       mounted = false
+  29 |     }
+  30 | }, [])
+
+Expected ',', got 'return'
+
+
+[00:00:36.607] Browser ERROR   uncaughtError: Error: ./app/pedidos/page.tsx:27:5
+Parsing ecmascript source code failed
+  25 |     })
+  26 |     .finally(() => mounted && setLoading(false)
+> 27 |     return () => {
+     |     ^^^^^^
+  28 |       mounted = false
+  29 |     }
+  30 | }, [])
+
+Expected ',', got 'return'
+
+
+[00:00:36.803] Browser ERROR   ./app/pedidos/page.tsx:27:5
+Parsing ecmascript source code failed
+  25 |     })
+  26 |     .finally(() => mounted && setLoading(false)
+> 27 |     return () => {
+     |     ^^^^^^
+  28 |       mounted = false
+  29 |     }
+  30 | }, [])
+
+Expected ',', got 'return'
+[00:00:37.080] Browser ERROR   ./app/pedidos/page.tsx:27:5
+Parsing ecmascript source code failed
+  25 |     })
+  26 |     .finally(() => mounted && setLoading(false)
+> 27 |     return () => {
+     |     ^^^^^^
+  28 |       mounted = false
+  29 |     }
+  30 | }, [])
+
+Expected ',', got 'return'
+[00:07:32.587] Server  LOG      ✓ Compiled in 124ms
+[00:07:33.027] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:07:33.936] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:07:33.936] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/pedidos","route":"/pedidos"}
+[00:07:33.936] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/pedidos color: rgb(120, 120, 120) color: inherit {"dp":"/pedidos","o":"http://localhost:3000/pedidos","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765681363536}
+[00:10:35.252] Server  LOG      ✓ Compiled in 36ms
+[00:13:13.764] Server  LOG      ✓ Compiled in 61ms
+[00:15:34.951] Server  LOG      ✓ Compiled in 70ms
+[00:17:32.411] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:17:32.904] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:17:32.904] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/pedidos","route":"/pedidos"}
+[00:17:32.904] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/pedidos color: rgb(120, 120, 120) color: inherit {"dp":"/pedidos","o":"http://localhost:3000/pedidos","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765681962975}
+[00:20:38.297] Server  LOG      ✓ Compiled in 58ms
+[00:20:42.304] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:20:42.971] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:20:42.971] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/pedidos","route":"/pedidos"}
+[00:20:42.971] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/pedidos color: rgb(120, 120, 120) color: inherit {"dp":"/pedidos","o":"http://localhost:3000/pedidos","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765682152976}
+[00:21:13.591] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/pedidos/10 color: rgb(120, 120, 120) color: inherit {"dp":"/pedidos/[id]","o":"http://localhost:3000/pedidos/10","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765682183654}
+[00:21:20.257] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/pedidos color: rgb(120, 120, 120) color: inherit {"dp":"/pedidos","o":"http://localhost:3000/pedidos","sdkn":"@vercel/analytics/next","sdkv":"1.3.1","sv":"0.1.3","ts":1765682190324}
+[00:25:38.863] Server  LOG      ✓ Compiled in 67ms
