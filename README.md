@@ -30,7 +30,7 @@ DB_HOST=tu-host-mysql.com
 DB_USER=tu-usuario
 DB_PASSWORD=tu-contraseña
 DB_NAME=nombre-base-datos
-DB_PORT=3306
+DB_PORT=tu-puerto
 \`\`\`
 
 ### Paso 2: Estructura de Base de Datos Sugerida
