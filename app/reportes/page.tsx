@@ -1,10 +1,105 @@
+"use client"
 
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 import { Download, TrendingUp, BarChart3, FileText, Calendar, Filter } from "lucide-react"
 
+const chartConfig = {
+  total_venta: {
+    label: "Ventas",
+    color: "#2563eb",
+  },
+};
+
 export default function ReportesPage() {
+  const [ventasMensuales, setVentasMensuales] = useState<any[]>([])
+  const [productosVendidos, setProductosVendidos] = useState<any[]>([])
+  const [insumosBajoStock, setInsumosBajoStock] = useState<any[]>([])
+  const [ventasHoy, setVentasHoy] = useState(0)
+  const [totalProductosVendidos, setTotalProductosVendidos] = useState(0)
+  const [promedioPedido, setPromedioPedido] = useState(0)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        // Ventas mensuales
+        const ventasRes = await fetch("/api/reportes?type=ventas_mensuales")
+        const ventasData = await ventasRes.json()
+        if (ventasData.report) {
+          const processedVentas = ventasData.report.map((v: any) => ({
+            ...v,
+            mes: getMesNombre(v.mes),
+            total_venta: Number(v.total_venta)
+          }));
+          setVentasMensuales(processedVentas)
+          // Calcular total del mes actual
+          const mesActual = new Date().toISOString().slice(0, 7)
+          const mesActualData = ventasData.report.find((v: any) => v.mes === mesActual)
+          setVentasHoy(Number(mesActualData?.total_venta || 0))
+        }
+
+        // Productos más vendidos
+        const productosRes = await fetch("/api/reportes?type=productos_vendidos")
+        const productosData = await productosRes.json()
+        if (productosData.report) {
+          setProductosVendidos(productosData.report)
+          const total = productosData.report.reduce((sum: number, p: any) => 
+            sum + Number(p.total_vendido || 0), 0
+          )
+          setTotalProductosVendidos(total)
+        }
+
+        // Insumos bajo stock
+        const stockRes = await fetch("/api/reportes?type=insumos_bajo_stock")
+        const stockData = await stockRes.json()
+        if (stockData.report) {
+          setInsumosBajoStock(stockData.report)
+        }
+
+        // Calcular promedio por pedido
+        const pedidosRes = await fetch("/api/pedidos")
+        const pedidosData = await pedidosRes.json()
+        if (pedidosData.pedidos) {
+          const totalVentas = pedidosData.pedidos.reduce((sum: number, p: any) => 
+            sum + Number(p.total_precio || 0), 0
+          )
+          const totalPedidos = pedidosData.pedidos.length
+          setPromedioPedido(totalPedidos > 0 ? totalVentas / totalPedidos : 0)
+        }
+      } catch (err) {
+        console.error("Error cargando reportes:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    cargarDatos()
+  }, [])
+
+  const getMesNombre = (mes: string) => {
+    if (!mes) return ""
+    const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"]
+    const [_, mesNum] = mes.split("-")
+    return meses[parseInt(mesNum) - 1] || mesNum
+  }
+
+  const maxProductos = productosVendidos.length > 0
+    ? Math.max(...productosVendidos.map((p: any) => Number(p.total_vendido || 0)))
+    : 1
+
+  if (loading) {
+    return <div className="p-6">Cargando reportes...</div>
+  }
+
   return (
     <div className="space-y-6">
       <div className="space-y-6">
@@ -39,11 +134,10 @@ export default function ReportesPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">$45,231</div>
+              <div className="text-2xl font-bold text-primary">${ventasHoy.toLocaleString()}</div>
               <div className="flex items-center gap-1 mt-1">
                 <TrendingUp className="h-3 w-3 text-success" />
-                <span className="text-xs text-success font-medium">+20.1%</span>
-                <span className="text-xs text-muted-foreground">vs mes anterior</span>
+                <span className="text-xs text-muted-foreground">Ventas del mes actual</span>
               </div>
             </CardContent>
           </Card>
@@ -54,22 +148,19 @@ export default function ReportesPage() {
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">2,350</div>
-              <p className="text-xs text-green-600 flex items-center gap-1">
-                <TrendingUp className="h-3 w-3" />
-                +15.3%
-              </p>
+              <div className="text-2xl font-bold">{totalProductosVendidos.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">Total unidades vendidas</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Insumos Utilizados</CardTitle>
+              <CardTitle className="text-sm font-medium">Insumos Bajo Stock</CardTitle>
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1,234 kg</div>
-              <p className="text-xs text-muted-foreground">Este mes</p>
+              <div className="text-2xl font-bold">{insumosBajoStock.length}</div>
+              <p className="text-xs text-muted-foreground">Requieren atención</p>
             </CardContent>
           </Card>
 
@@ -79,11 +170,8 @@ export default function ReportesPage() {
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$125.50</div>
-              <p className="text-xs text-green-600 flex items-center gap-1">
-                <TrendingUp className="h-3 w-3" />
-                +8.2%
-              </p>
+              <div className="text-2xl font-bold">${promedioPedido.toFixed(2)}</div>
+              <p className="text-xs text-muted-foreground">Promedio de todos los pedidos</p>
             </CardContent>
           </Card>
         </div>
@@ -96,38 +184,30 @@ export default function ReportesPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] flex items-end justify-between gap-2">
-              {[
-                { mes: "Ene", valor: 35000, color: "bg-green-500" },
-                { mes: "Feb", valor: 42000, color: "bg-green-500" },
-                { mes: "Mar", valor: 38000, color: "bg-green-500" },
-                { mes: "Abr", valor: 45000, color: "bg-green-500" },
-                { mes: "May", valor: 41000, color: "bg-green-500" },
-                { mes: "Jun", valor: 47000, color: "bg-green-500" },
-                { mes: "Jul", valor: 52000, color: "bg-green-600" },
-                { mes: "Ago", valor: 48000, color: "bg-green-500" },
-                { mes: "Sep", valor: 51000, color: "bg-green-500" },
-                { mes: "Oct", valor: 49000, color: "bg-green-500" },
-                { mes: "Nov", valor: 53000, color: "bg-green-500" },
-                { mes: "Dic", valor: 45231, color: "bg-green-600" },
-              ].map((dato, i) => {
-                const altura = (dato.valor / 60000) * 100
-                return (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                    <div className="relative w-full group">
-                      <div
-                        className={`w-full ${dato.color} rounded-t-md transition-all hover:opacity-80`}
-                        style={{ height: `${altura}%` }}
-                      />
-                      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-popover border border-border rounded px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        ${dato.valor.toLocaleString()}
-                      </div>
-                    </div>
-                    <span className="text-xs text-muted-foreground">{dato.mes}</span>
-                  </div>
-                )
-              })}
-            </div>
+            {ventasMensuales.length === 0 ? (
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                No hay datos de ventas mensuales
+              </div>
+            ) : (
+              <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                <BarChart data={ventasMensuales} margin={{ top: 20, right: 20, left: 20, bottom: 5 }}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="mes"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                  />
+                  <YAxis />
+                  <ChartTooltip
+                    content={<ChartTooltipContent
+                      formatter={(value) => `$${Number(value).toLocaleString()}`}
+                    />}
+                  />
+                  <Bar dataKey="total_venta" fill="var(--color-total_venta)" radius={4} />
+                </BarChart>
+              </ChartContainer>
+            )}
           </CardContent>
         </Card>
 
@@ -140,26 +220,30 @@ export default function ReportesPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { producto: "Producto A", ventas: 450, porcentaje: 90 },
-                { producto: "Producto B", ventas: 380, porcentaje: 76 },
-                { producto: "Producto C", ventas: 320, porcentaje: 64 },
-                { producto: "Producto D", ventas: 280, porcentaje: 56 },
-                { producto: "Producto E", ventas: 240, porcentaje: 48 },
-              ].map((item, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium">{item.producto}</span>
-                    <span className="text-muted-foreground">{item.ventas} unidades</span>
-                  </div>
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-green-600 rounded-full transition-all"
-                      style={{ width: `${item.porcentaje}%` }}
-                    />
-                  </div>
+              {productosVendidos.length === 0 ? (
+                <div className="text-center py-4 text-muted-foreground text-sm">
+                  No hay datos de productos vendidos
                 </div>
-              ))}
+              ) : (
+                productosVendidos.slice(0, 5).map((item: any, i: number) => {
+                  const ventas = Number(item.total_vendido || 0)
+                  const porcentaje = maxProductos > 0 ? (ventas / maxProductos) * 100 : 0
+                  return (
+                    <div key={item.ID_Producto || i} className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="font-medium">{item.producto_nombre || item.Nombre}</span>
+                        <span className="text-muted-foreground">{ventas} unidades</span>
+                      </div>
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-green-600 rounded-full transition-all"
+                          style={{ width: `${porcentaje}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })
+              )}
             </div>
           </CardContent>
         </Card>
@@ -173,29 +257,36 @@ export default function ReportesPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { insumo: "Insumo A", stock: 15, minimo: 50, porcentaje: 30 },
-                { insumo: "Insumo B", stock: 25, minimo: 60, porcentaje: 42 },
-                { insumo: "Insumo C", stock: 18, minimo: 40, porcentaje: 45 },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0"
-                >
-                  <div>
-                    <p className="font-medium">{item.insumo}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Stock: {item.stock} / Mínimo: {item.minimo}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-red-600 rounded-full" style={{ width: `${item.porcentaje}%` }} />
-                    </div>
-                    <span className="text-sm font-medium text-red-600">{item.porcentaje}%</span>
-                  </div>
+              {insumosBajoStock.length === 0 ? (
+                <div className="text-center py-4 text-muted-foreground text-sm">
+                  No hay insumos con stock bajo
                 </div>
-              ))}
+              ) : (
+                insumosBajoStock.map((item: any, i: number) => {
+                  const stock = Number(item.Stock_Actual || 0)
+                  const minimo = Number(item.Stock_Minimo || 0)
+                  const porcentaje = minimo > 0 ? (stock / minimo) * 100 : 0
+                  return (
+                    <div
+                      key={item.ID_Insumo || i}
+                      className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0"
+                    >
+                      <div>
+                        <p className="font-medium">{item.Nombre}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Stock: {stock.toFixed(3)} {item.Unidad_Medida} / Mínimo: {minimo.toFixed(3)} {item.Unidad_Medida}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full bg-red-600 rounded-full" style={{ width: `${Math.min(porcentaje, 100)}%` }} />
+                        </div>
+                        <span className="text-sm font-medium text-red-600">{porcentaje.toFixed(0)}%</span>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
             </div>
           </CardContent>
         </Card>

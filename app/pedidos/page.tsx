@@ -11,6 +11,7 @@ import Link from "next/link"
 export default function PedidosPage() {
   const [pedidos, setPedidos] = useState<any[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const [search, setSearch] = useState("")
 
   useEffect(() => {
     let mounted = true
@@ -39,6 +40,16 @@ export default function PedidosPage() {
       mounted = false
     }
   }, [])
+
+  const pedidosFiltrados = pedidos.filter((p) => {
+    const searchLower = search.toLowerCase()
+    return (
+      String(p.id || p.ID_Pedido).includes(searchLower) ||
+      (p.cliente_nombre || "").toLowerCase().includes(searchLower) ||
+      (p.empleado_nombre || "").toLowerCase().includes(searchLower) ||
+      (p.Estado || "").toLowerCase().includes(searchLower)
+    )
+  })
 
   if (loading) {
     return <div>Cargando pedidos...</div>
@@ -116,7 +127,7 @@ export default function PedidosPage() {
             Exportar
           </Button>
           <Link href="/pedidos/nuevo">
-            <Button className="bg-primary hover:bg-primary/90">
+            <Button className="bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg transition-shadow font-semibold">
               <Plus className="h-4 w-4 mr-2" />
               Nuevo Pedido
             </Button>
@@ -127,10 +138,12 @@ export default function PedidosPage() {
       <div className="flex gap-4 items-center">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
+          <Input
             type="text"
             placeholder="Buscar por ID, cliente o estado..."
-            className="w-full h-10 pl-10 pr-4 bg-background/50 rounded-md text-sm border border-border outline-none focus:outline-none focus:ring-0 focus:border-border"
+            className="pl-10"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <Button variant="outline">
@@ -143,7 +156,7 @@ export default function PedidosPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             Lista de Pedidos
-            <Badge variant="secondary">{pedidos.length} en total</Badge>
+            <Badge variant="secondary">{pedidosFiltrados.length} de {pedidos.length} en total</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -162,7 +175,14 @@ export default function PedidosPage() {
                 </tr>
               </thead>
               <tbody>
-                {pedidos.map((pedido) => {
+                {pedidosFiltrados.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="py-8 text-center text-muted-foreground">
+                      No se encontraron pedidos
+                    </td>
+                  </tr>
+                ) : (
+                  pedidosFiltrados.map((pedido) => {
                   const getEstadoVariant = (estado: string) => {
                     switch (estado) {
                       case "Entregado": return "default" as const
@@ -170,6 +190,16 @@ export default function PedidosPage() {
                       case "Pagado": return "secondary" as const
                       case "Cancelado": return "destructive" as const
                       default: return "secondary" as const
+                    }
+                  }
+
+                  const getEstadoColor = (estado: string) => {
+                    switch (estado) {
+                      case "Entregado": return "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
+                      case "En preparación": return "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
+                      case "Pagado": return "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
+                      case "Cancelado": return "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
+                      default: return ""
                     }
                   }
 
@@ -189,7 +219,10 @@ export default function PedidosPage() {
                         <span className="font-bold text-primary">${pedido.total_precio.toFixed(2)}</span>
                       </td>
                       <td className="py-4 px-4">
-                        <Badge variant={getEstadoVariant(pedido.Estado)} className="text-xs">
+                        <Badge 
+                          variant={getEstadoVariant(pedido.Estado)} 
+                          className={`text-xs font-medium border ${getEstadoColor(pedido.Estado)}`}
+                        >
                           {pedido.Estado}
                         </Badge>
                       </td>
@@ -202,7 +235,7 @@ export default function PedidosPage() {
                       </td>
                     </tr>
                   )
-                })}
+                }))}
               </tbody>
             </table>
           </div>
