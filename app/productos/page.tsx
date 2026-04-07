@@ -80,7 +80,7 @@ export default function ProductosPage() {
           </Card>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {productosFiltrados.map((producto) => {
+            {productosFiltrados.map((producto, idx) => {
               const categoriaNombre = producto.Categoria_Nombre || producto.categoria || "Sin categoría"
               const nombreProducto = producto.Nombre || producto.nombre
               const precio = Number(producto.Precio || producto.precio || 0)
@@ -98,7 +98,7 @@ export default function ProductosPage() {
               }
               
               return (
-                <Card key={producto.ID_Producto || producto.id} className="group hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-card to-card/50 border-2 hover:border-primary/20">
+                <Card key={producto.ID_Producto ?? producto.id ?? idx} className="group hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-card to-card/50 border-2 hover:border-primary/20">
                   <CardHeader className="pb-3">
                     <div className="aspect-video rounded-xl bg-gradient-to-br from-muted to-muted/50 mb-3 overflow-hidden relative">
                       <img

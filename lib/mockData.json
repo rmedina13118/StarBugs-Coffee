@@ -1,0 +1,73 @@
+{
+  "Categoria": [
+    { "ID_Categoria": 1, "Nombre": "Bebidas Calientes", "Descripcion": "Cafés y tés calientes" },
+    { "ID_Categoria": 2, "Nombre": "Bebidas Frías", "Descripcion": "Frappés y bebidas heladas" },
+    { "ID_Categoria": 3, "Nombre": "Repostería", "Descripcion": "Pasteles y galletas" }
+  ],
+  "Cliente": [
+    { "ID_Cliente": 1, "Nombre": "Ana García", "Email": "ana@example.com", "Telefono": "555-1001", "Fecha_Registro": "2024-01-10" },
+    { "ID_Cliente": 2, "Nombre": "Luis Pérez", "Email": "luis@example.com", "Telefono": "555-1002", "Fecha_Registro": "2024-02-15" },
+    { "ID_Cliente": 3, "Nombre": "María López", "Email": "maria@example.com", "Telefono": "555-1003", "Fecha_Registro": "2024-03-20" }
+  ],
+  "Empleado": [
+    { "ID_Empleado": 1, "Nombre": "Carlos Ruiz", "Puesto": "Barista", "Email": "carlos@starbugs.com", "Telefono": "555-2001" },
+    { "ID_Empleado": 2, "Nombre": "Sofía Torres", "Puesto": "Cajera", "Email": "sofia@starbugs.com", "Telefono": "555-2002" }
+  ],
+  "Producto": [
+    { "ID_Producto": 1, "Nombre": "Americano", "Precio": 45.00, "ID_Categoria": 1, "Descripcion": "Espresso con agua caliente", "Disponibilidad": true, "Categoria_Nombre": "Bebidas Calientes", "Categoria_Descripcion": "Cafés y tés calientes" },
+    { "ID_Producto": 2, "Nombre": "Latte", "Precio": 55.00, "ID_Categoria": 1, "Descripcion": "Espresso con leche vaporizada", "Disponibilidad": true, "Categoria_Nombre": "Bebidas Calientes", "Categoria_Descripcion": "Cafés y tés calientes" },
+    { "ID_Producto": 3, "Nombre": "Frappé Caramelo", "Precio": 70.00, "ID_Categoria": 2, "Descripcion": "Bebida fría con caramelo", "Disponibilidad": true, "Categoria_Nombre": "Bebidas Frías", "Categoria_Descripcion": "Frappés y bebidas heladas" },
+    { "ID_Producto": 4, "Nombre": "Muffin Arándano", "Precio": 35.00, "ID_Categoria": 3, "Descripcion": "Muffin esponjoso de arándano", "Disponibilidad": true, "Categoria_Nombre": "Repostería", "Categoria_Descripcion": "Pasteles y galletas" }
+  ],
+  "Pedido": [
+    { "ID_Pedido": 1, "Fecha_Hora": "2025-06-01T09:00:00", "Estado": "Entregado", "ID_Cliente": 1, "ID_Empleado": 1, "cliente_nombre": "Ana García", "empleado_nombre": "Carlos Ruiz", "total_items": 2, "total_precio": 100.00 },
+    { "ID_Pedido": 2, "Fecha_Hora": "2025-06-02T10:30:00", "Estado": "En preparación", "ID_Cliente": 2, "ID_Empleado": 2, "cliente_nombre": "Luis Pérez", "empleado_nombre": "Sofía Torres", "total_items": 1, "total_precio": 55.00 },
+    { "ID_Pedido": 3, "Fecha_Hora": "2025-06-03T11:00:00", "Estado": "Pagado", "ID_Cliente": 3, "ID_Empleado": 1, "cliente_nombre": "María López", "empleado_nombre": "Carlos Ruiz", "total_items": 3, "total_precio": 160.00 }
+  ],
+  "Detalle_Pedido": [
+    { "ID_Detalle": 1, "ID_Pedido": 1, "ID_Producto": 1, "Cantidad": 1, "Precio_Unitario": 45.00, "producto_nombre": "Americano" },
+    { "ID_Detalle": 2, "ID_Pedido": 1, "ID_Producto": 4, "Cantidad": 1, "Precio_Unitario": 35.00, "producto_nombre": "Muffin Arándano" },
+    { "ID_Detalle": 3, "ID_Pedido": 2, "ID_Producto": 2, "Cantidad": 1, "Precio_Unitario": 55.00, "producto_nombre": "Latte" },
+    { "ID_Detalle": 4, "ID_Pedido": 3, "ID_Producto": 3, "Cantidad": 2, "Precio_Unitario": 70.00, "producto_nombre": "Frappé Caramelo" },
+    { "ID_Detalle": 5, "ID_Pedido": 3, "ID_Producto": 4, "Cantidad": 1, "Precio_Unitario": 35.00, "producto_nombre": "Muffin Arándano" }
+  ],
+  "Factura": [
+    { "ID_Factura": 1, "ID_Pedido": 1, "Fecha_Emision": "2025-06-01T09:05:00", "Metodo_Pago": "Efectivo", "Fecha_Pedido": "2025-06-01T09:00:00", "Cliente_Nombre": "Ana García", "Total": 100.00 },
+    { "ID_Factura": 2, "ID_Pedido": 3, "Fecha_Emision": "2025-06-03T11:10:00", "Metodo_Pago": "Tarjeta", "Fecha_Pedido": "2025-06-03T11:00:00", "Cliente_Nombre": "María López", "Total": 160.00 }
+  ],
+  "Insumo": [
+    { "ID_Insumo": 1, "Nombre": "Café Espresso", "Stock_Actual": 50, "Stock_Minimo": 10, "Precio_Unidad": 120.00, "Unidad_Medida": "kg" },
+    { "ID_Insumo": 2, "Nombre": "Leche", "Stock_Actual": 30, "Stock_Minimo": 20, "Precio_Unidad": 25.00, "Unidad_Medida": "litro" },
+    { "ID_Insumo": 3, "Nombre": "Azúcar", "Stock_Actual": 8, "Stock_Minimo": 15, "Precio_Unidad": 18.00, "Unidad_Medida": "kg" },
+    { "ID_Insumo": 4, "Nombre": "Caramelo", "Stock_Actual": 5, "Stock_Minimo": 10, "Precio_Unidad": 45.00, "Unidad_Medida": "litro" }
+  ],
+  "Proveedor": [
+    { "ID_Proveedor": 1, "Nombre": "Café Premium SA", "Telefono": "555-3001", "Email": "ventas@cafepremium.com", "Calle": "Av. Industrial", "Numero_Calle": "100", "Ciudad": "CDMX", "Codigo_Postal": "06600" },
+    { "ID_Proveedor": 2, "Nombre": "Lácteos del Valle", "Telefono": "555-3002", "Email": "contacto@lacteosvalle.com", "Calle": "Calle Lechera", "Numero_Calle": "45", "Ciudad": "Toluca", "Codigo_Postal": "50000" }
+  ],
+  "Receta": [
+    { "ID_Receta": 1, "ID_Producto": 1, "ID_Insumo": 1, "Cantidad": 0.018, "Producto_Nombre": "Americano", "Insumo_Nombre": "Café Espresso", "Unidad_Medida": "kg" },
+    { "ID_Receta": 2, "ID_Producto": 2, "ID_Insumo": 1, "Cantidad": 0.018, "Producto_Nombre": "Latte", "Insumo_Nombre": "Café Espresso", "Unidad_Medida": "kg" },
+    { "ID_Receta": 3, "ID_Producto": 2, "ID_Insumo": 2, "Cantidad": 0.2, "Producto_Nombre": "Latte", "Insumo_Nombre": "Leche", "Unidad_Medida": "litro" },
+    { "ID_Receta": 4, "ID_Producto": 3, "ID_Insumo": 4, "Cantidad": 0.05, "Producto_Nombre": "Frappé Caramelo", "Insumo_Nombre": "Caramelo", "Unidad_Medida": "litro" }
+  ],
+  "Movimiento_Insumo": [
+    { "ID_Movimiento": 1, "ID_Insumo": 1, "ID_Proveedor": 1, "ID_Pedido": null, "Tipo": "Entrada", "Cantidad": 20, "Fecha": "2025-05-28T08:00:00", "Insumo_Nombre": "Café Espresso", "Proveedor_Nombre": "Café Premium SA" },
+    { "ID_Movimiento": 2, "ID_Insumo": 2, "ID_Proveedor": 2, "ID_Pedido": null, "Tipo": "Entrada", "Cantidad": 40, "Fecha": "2025-05-29T09:00:00", "Insumo_Nombre": "Leche", "Proveedor_Nombre": "Lácteos del Valle" },
+    { "ID_Movimiento": 3, "ID_Insumo": 1, "ID_Proveedor": null, "ID_Pedido": 1, "Tipo": "Salida", "Cantidad": 0.036, "Fecha": "2025-06-01T09:00:00", "Insumo_Nombre": "Café Espresso", "Proveedor_Nombre": null }
+  ],
+  "Reporte_Ventas": [
+    { "fecha": "2025-06-03", "total_pedidos": 1, "total_venta": 160.00 },
+    { "fecha": "2025-06-02", "total_pedidos": 1, "total_venta": 55.00 },
+    { "fecha": "2025-06-01", "total_pedidos": 1, "total_venta": 100.00 }
+  ],
+  "Reporte_Productos_Vendidos": [
+    { "ID_Producto": 3, "producto_nombre": "Frappé Caramelo", "total_vendido": 2, "total_ingresos": 140.00 },
+    { "ID_Producto": 4, "producto_nombre": "Muffin Arándano", "total_vendido": 2, "total_ingresos": 70.00 },
+    { "ID_Producto": 2, "producto_nombre": "Latte", "total_vendido": 1, "total_ingresos": 55.00 },
+    { "ID_Producto": 1, "producto_nombre": "Americano", "total_vendido": 1, "total_ingresos": 45.00 }
+  ],
+  "Reporte_Ventas_Mensuales": [
+    { "mes": "2025-06", "total_pedidos": 3, "total_venta": 315.00 }
+  ]
+}
