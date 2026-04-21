@@ -23,9 +23,9 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Pedidos", href: "/pedidos", icon: ShoppingCart },
   { name: "Productos", href: "/productos", icon: Package },
-  { name: "Inventario", href: "#", icon: Warehouse },
-  { name: "Reportes", href: "#", icon: FileText },
-  { name: "Clientes", href: "#", icon: Users },
+  { name: "Inventario", href: "/inventario", icon: Warehouse },
+  { name: "Reportes", href: "/reportes", icon: FileText },
+  { name: "Clientes", href: "/clientes", icon: Users },
 ]
 
 export function AppSidebar() {
