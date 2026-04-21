@@ -1,43 +1,19 @@
-import { query } from '@/lib/db'
+import { apiFetch } from '@/lib/api'
+import { NextResponse } from 'next/server'
 
-export async function GET(req: Request, { params }: any) {
-  try {
-    const { id } = await params
-    const rows: any = await query(`SELECT * FROM Receta WHERE ID_Receta = ?`, [id])
-    if (!rows || rows.length === 0) return new Response(JSON.stringify({ ok: false, error: 'Not found' }), { status: 404 })
-    return new Response(JSON.stringify({ ok: true, receta: rows[0] }), { headers: { 'Content-Type': 'application/json' } })
-  } catch (err) {
-    console.error('GET /api/recetas/[id] error', err)
-    return new Response(JSON.stringify({ ok: false, error: 'Error fetching receta' }), { status: 500 })
-  }
+export async function GET(_: Request, { params }: any) {
+  const { id } = await params
+  const data = await apiFetch(`/api/recetas/${id}`)
+  return NextResponse.json(data)
 }
-
-export async function PATCH(req: Request, { params }: any) {
-  try {
-    const { id } = await params
-    const body = await req.json()
-    const fields: string[] = []
-    const values: any[] = []
-    for (const k of ['Nombre', 'Instrucciones']) {
-      if (body[k] !== undefined) { fields.push(`${k} = ?`); values.push(body[k]) }
-    }
-    if (fields.length === 0) return new Response(JSON.stringify({ ok: false, error: 'No fields' }), { status: 400 })
-    values.push(id)
-    await query(`UPDATE Receta SET ${fields.join(', ')} WHERE ID_Receta = ?`, values)
-    return new Response(JSON.stringify({ ok: true }))
-  } catch (err) {
-    console.error('PATCH /api/recetas/[id] error', err)
-    return new Response(JSON.stringify({ ok: false, error: 'Error updating receta' }), { status: 500 })
-  }
+export async function PUT(req: Request, { params }: any) {
+  const { id } = await params
+  const body = await req.json()
+  const data = await apiFetch(`/api/recetas/${id}`, { method: 'PUT', body: JSON.stringify(body) })
+  return NextResponse.json(data)
 }
-
-export async function DELETE(req: Request, { params }: any) {
-  try {
-    const { id } = await params
-    await query(`DELETE FROM Receta WHERE ID_Receta = ?`, [id])
-    return new Response(JSON.stringify({ ok: true }))
-  } catch (err) {
-    console.error('DELETE /api/recetas/[id] error', err)
-    return new Response(JSON.stringify({ ok: false, error: 'Error deleting receta' }), { status: 500 })
-  }
+export async function DELETE(_: Request, { params }: any) {
+  const { id } = await params
+  const data = await apiFetch(`/api/recetas/${id}`, { method: 'DELETE' })
+  return NextResponse.json(data)
 }
