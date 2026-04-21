@@ -7,21 +7,31 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Search, AlertTriangle, Package, Plus, Filter, Download } from "lucide-react"
+import { Search, AlertTriangle, Package, Plus, Filter, Edit } from "lucide-react"
+
+const API = ""
+const EMPTY_INSUMO = { name: "", stock: "", minStock: "", price: "", unitMeasurement: "" }
 
 export default function InventarioPage() {
   const [insumos, setInsumos] = useState<any[]>([])
   const [proveedores, setProveedores] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
-  const [dialogOpen, setDialogOpen] = useState(false)
+
+  // Reabastecer
+  const [reabDialog, setReabDialog] = useState(false)
   const [selected, setSelected] = useState<any>(null)
-  const [form, setForm] = useState({ cantidad: "", proveedor: "" })
+  const [reabForm, setReabForm] = useState({ cantidad: "", proveedorId: "" })
+  const [saving, setSaving] = useState(false)
+
+  // Editar/Crear insumo
+  const [insumoDialog, setInsumoDialog] = useState<{ open: boolean; editing: any }>({ open: false, editing: null })
+  const [insumoForm, setInsumoForm] = useState<any>(EMPTY_INSUMO)
 
   const reload = () =>
     Promise.all([
-      fetch("/api/insumos").then((r) => r.json()),
-      fetch("/api/proveedores").then((r) => r.json()),
+      fetch(`${API}/api/insumos`).then((r) => r.json()),
+      fetch(`${API}/api/proveedores`).then((r) => r.json()),
     ]).then(([ins, prov]) => {
       setInsumos(Array.isArray(ins) ? ins : [])
       setProveedores(Array.isArray(prov) ? prov : [])
@@ -29,22 +39,59 @@ export default function InventarioPage() {
 
   useEffect(() => { reload() }, [])
 
-  const filtrados = insumos.filter((i) =>
-    i.name?.toLowerCase().includes(search.toLowerCase())
-  )
-
+  const filtrados = insumos.filter((i) => i.name?.toLowerCase().includes(search.toLowerCase()))
   const stockBajo = insumos.filter((i) => Number(i.stock) < Number(i.minStock)).length
 
+  // Reabastecer — body correcto: { material:{id}, stock, type:"entrada" }
   const handleReabastecer = async () => {
-    if (!form.cantidad || Number(form.cantidad) <= 0) return alert("Cantidad inválida")
-    if (!form.proveedor) return alert("Selecciona un proveedor")
-    await fetch("/api/movimientos", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id_insumo: selected.id, id_proveedor: Number(form.proveedor), tipo: "Entrada", cantidad: Number(form.cantidad) }),
-    })
-    setDialogOpen(false)
-    reload()
+    if (!reabForm.cantidad || Number(reabForm.cantidad) <= 0) return alert("Cantidad inválida")
+    setSaving(true)
+    try {
+      await fetch(`${API}/api/movimientos`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          material: { id: selected.id },
+          stock: Number(reabForm.cantidad),
+          type: "entrada",
+          ...(reabForm.proveedorId && { person: null }),
+        }),
+      })
+      // Actualizar stock del insumo directamente
+      await fetch(`${API}/api/insumos/${selected.id}`, {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...selected, stock: Number(selected.stock) + Number(reabForm.cantidad) }),
+      })
+      setReabDialog(false)
+      reload()
+    } finally { setSaving(false) }
+  }
+
+  // Editar/Crear insumo
+  const openEdit = (item: any) => {
+    setInsumoForm({ name: item.name, stock: item.stock, minStock: item.minStock, price: item.price, unitMeasurement: item.unitMeasurement })
+    setInsumoDialog({ open: true, editing: item })
+  }
+  const openCreate = () => { setInsumoForm(EMPTY_INSUMO); setInsumoDialog({ open: true, editing: null }) }
+
+  const handleSaveInsumo = async () => {
+    if (!insumoForm.name.trim()) return alert("Nombre requerido")
+    setSaving(true)
+    const body = { name: insumoForm.name, stock: Number(insumoForm.stock), minStock: Number(insumoForm.minStock), price: Number(insumoForm.price), unitMeasurement: insumoForm.unitMeasurement }
+    try {
+      if (insumoDialog.editing) {
+        await fetch(`${API}/api/insumos/${insumoDialog.editing.id}`, {
+          method: "PUT", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...insumoDialog.editing, ...body }),
+        })
+      } else {
+        await fetch(`${API}/api/insumos`, {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        })
+      }
+      setInsumoDialog({ open: false, editing: null })
+      reload()
+    } finally { setSaving(false) }
   }
 
   const estadoColor = (stock: number, min: number) => {
@@ -54,7 +101,11 @@ export default function InventarioPage() {
     return { label: "Normal", cls: "bg-green-500/10 text-green-700 border-green-500/20" }
   }
 
-  if (loading) return <div className="p-6">Cargando inventario...</div>
+  if (loading) return (
+    <div className="space-y-4">
+      {[...Array(5)].map((_, i) => <div key={i} className="h-14 bg-muted animate-pulse rounded-lg" />)}
+    </div>
+  )
 
   return (
     <div className="space-y-6">
@@ -63,10 +114,9 @@ export default function InventarioPage() {
           <h1 className="text-3xl font-bold mb-2">Gestión de Inventario</h1>
           <p className="text-muted-foreground">Control de insumos y stock de tu cafetería</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline"><Download className="h-4 w-4 mr-2" />Exportar</Button>
-          <Button className="bg-primary hover:bg-primary/90"><Plus className="h-4 w-4 mr-2" />Agregar Insumo</Button>
-        </div>
+        <Button className="bg-primary hover:bg-primary/90" onClick={openCreate}>
+          <Plus className="h-4 w-4 mr-2" />Agregar Insumo
+        </Button>
       </div>
 
       {stockBajo > 0 && (
@@ -130,15 +180,18 @@ export default function InventarioPage() {
                       <td className="py-4 px-4 text-muted-foreground">{Number(item.minStock).toLocaleString()} {item.unitMeasurement}</td>
                       <td className="py-4 px-4 text-muted-foreground">{item.unitMeasurement}</td>
                       <td className="py-4 px-4">${Number(item.price).toLocaleString()}</td>
+                      <td className="py-4 px-4"><Badge className={`text-xs font-medium border ${cls}`}>{label}</Badge></td>
                       <td className="py-4 px-4">
-                        <Badge className={`text-xs font-medium border ${cls}`}>{label}</Badge>
-                      </td>
-                      <td className="py-4 px-4">
-                        <Button size="sm" variant="outline"
-                          className="hover:bg-blue-500/10 hover:text-blue-700 border-blue-500/20 text-blue-700"
-                          onClick={() => { setSelected(item); setForm({ cantidad: "", proveedor: "" }); setDialogOpen(true) }}>
-                          Reabastecer
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="hover:bg-primary/10 hover:text-primary" onClick={() => openEdit(item)}>
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button size="sm" variant="outline"
+                            className="hover:bg-blue-500/10 hover:text-blue-700 border-blue-500/20 text-blue-700"
+                            onClick={() => { setSelected(item); setReabForm({ cantidad: "", proveedorId: "" }); setReabDialog(true) }}>
+                            Reabastecer
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   )
@@ -149,31 +202,57 @@ export default function InventarioPage() {
         </CardContent>
       </Card>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {/* Dialog Reabastecer */}
+      <Dialog open={reabDialog} onOpenChange={setReabDialog}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Reabastecer Insumo</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Reabastecer — {selected?.name}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
-            <div><Label>Insumo</Label><Input value={selected?.name ?? ""} disabled className="bg-muted" /></div>
             <div>
-              <Label>Cantidad *</Label>
-              <Input type="number" step="0.001" min="0.001" value={form.cantidad}
-                onChange={(e) => setForm({ ...form, cantidad: e.target.value })}
+              <Label>Cantidad a agregar *</Label>
+              <Input type="number" step="0.001" min="0.001" value={reabForm.cantidad}
+                onChange={(e) => setReabForm({ ...reabForm, cantidad: e.target.value })}
                 placeholder={`Cantidad en ${selected?.unitMeasurement ?? ""}`} />
             </div>
             <div>
-              <Label>Proveedor *</Label>
+              <Label>Proveedor (opcional)</Label>
               <select className="w-full h-10 px-3 rounded-md border border-input bg-background"
-                value={form.proveedor} onChange={(e) => setForm({ ...form, proveedor: e.target.value })}>
-                <option value="">Seleccionar proveedor</option>
-                {proveedores.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
+                value={reabForm.proveedorId} onChange={(e) => setReabForm({ ...reabForm, proveedorId: e.target.value })}>
+                <option value="">Sin proveedor</option>
+                {proveedores.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
               </select>
+            </div>
+            <div className="text-sm text-muted-foreground bg-muted p-3 rounded-lg">
+              Stock actual: <strong>{selected?.stock} {selected?.unitMeasurement}</strong>
+              {reabForm.cantidad && Number(reabForm.cantidad) > 0 && (
+                <> → <strong className="text-green-600">{Number(selected?.stock) + Number(reabForm.cantidad)} {selected?.unitMeasurement}</strong></>
+              )}
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={handleReabastecer}>Reabastecer</Button>
+            <Button variant="outline" onClick={() => setReabDialog(false)}>Cancelar</Button>
+            <Button onClick={handleReabastecer} disabled={saving}>{saving ? "Guardando..." : "Reabastecer"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Insumo */}
+      <Dialog open={insumoDialog.open} onOpenChange={(o) => setInsumoDialog({ open: o, editing: null })}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>{insumoDialog.editing ? "Editar Insumo" : "Nuevo Insumo"}</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-4">
+            <div><Label>Nombre *</Label><Input value={insumoForm.name} onChange={(e) => setInsumoForm({ ...insumoForm, name: e.target.value })} placeholder="Nombre del insumo" /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Stock Actual</Label><Input type="number" value={insumoForm.stock} onChange={(e) => setInsumoForm({ ...insumoForm, stock: e.target.value })} placeholder="0" /></div>
+              <div><Label>Stock Mínimo</Label><Input type="number" value={insumoForm.minStock} onChange={(e) => setInsumoForm({ ...insumoForm, minStock: e.target.value })} placeholder="0" /></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Precio/Unidad</Label><Input type="number" value={insumoForm.price} onChange={(e) => setInsumoForm({ ...insumoForm, price: e.target.value })} placeholder="0" /></div>
+              <div><Label>Unidad de Medida</Label><Input value={insumoForm.unitMeasurement} onChange={(e) => setInsumoForm({ ...insumoForm, unitMeasurement: e.target.value })} placeholder="kg, litros, unidad..." /></div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInsumoDialog({ open: false, editing: null })}>Cancelar</Button>
+            <Button onClick={handleSaveInsumo} disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -25,7 +25,7 @@ const navigation = [
   { name: "Productos", href: "/productos", icon: Package },
   { name: "Inventario", href: "/inventario", icon: Warehouse },
   { name: "Reportes", href: "/reportes", icon: FileText },
-  { name: "Clientes", href: "/clientes", icon: Users },
+  { name: "Clientes / Personal", href: "/clientes", icon: Users },
 ]
 
 export function AppSidebar() {
