@@ -55,12 +55,12 @@ export default function DetallePedidoPage({ params }: { params: Promise<{ id: st
 
   const estadoColor = (nombre: string) => {
     switch (nombre) {
-      case "Entregado":      return "bg-green-500/10 text-green-700 border-green-500/20"
+      case "Entregado": return "bg-green-500/10 text-green-700 border-green-500/20"
       case "En preparación": return "bg-amber-500/10 text-amber-700 border-amber-500/20"
-      case "Listo":          return "bg-blue-500/10 text-blue-700 border-blue-500/20"
-      case "Pendiente":      return "bg-gray-500/10 text-gray-600 border-gray-500/20"
-      case "Cancelado":      return "bg-red-500/10 text-red-700 border-red-500/20"
-      default:               return ""
+      case "Listo": return "bg-blue-500/10 text-blue-700 border-blue-500/20"
+      case "Pendiente": return "bg-gray-500/10 text-gray-600 border-gray-500/20"
+      case "Cancelado": return "bg-red-500/10 text-red-700 border-red-500/20"
+      default: return ""
     }
   }
 

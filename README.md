@@ -1,154 +1,158 @@
-# Panel de Control Empresarial
+# StarBugs Coffee - Panel de Control Empresarial
 
-Sistema completo de gestión empresarial con las siguientes funcionalidades:
+Sistema completo de gestión empresarial para StarBugs Coffee. Permite la administración centralizada de pedidos, control de inventario, gestión de clientes, seguimiento de mesas, y visualización de analíticas y reportes en tiempo real.
+
+---
+
+## 📑 Índice
+
+- [🚀 Funcionalidades](#-funcionalidades)
+- [🎨 Tecnologías Utilizadas](#-tecnologias-utilizadas)
+- [📂 Estructura del Proyecto](#-estructura-del-proyecto)
+- [🌐 Arquitectura y Conexiones API (Endpoints)](#-arquitectura-y-conexiones-api-endpoints)
+- [📱 Rutas de la Aplicación (Frontend)](#-rutas-de-la-aplicacion-frontend)
+- [📦 Instalación y Ejecución Local](#-instalacion-y-ejecucion-local)
+
+---
 
 ## 🚀 Funcionalidades
 
 ### Módulos Principales
-- **Panel de Control**: Dashboard con métricas y estadísticas en tiempo real
-- **Gestión de Pedidos**: Administración completa de pedidos con búsqueda y filtros
-- **Gestión de Productos**: Catálogo de productos con control de stock
-- **Gestión de Inventario**: Control de inventario con alertas de stock bajo
-- **Generación de Reportes**: Reportes analíticos con gráficos de ventas e insumos
-- **Gestión de Clientes y Empleados**: Administración de contactos
+- **Panel de Control (Dashboard)**: Métricas, gráficas y estadísticas en tiempo real sobre ventas e ingresos.
+- **Gestión de Pedidos**: Administración completa de órdenes tanto en la modalidad Local (Mesas) como Domicilio.
+- **Gestión de Productos e Inventario**: Catálogo interactivo de productos y control de insumos y materiales con monitoreo de existencias.
+- **Facturación**: Control de facturas generadas por ventas y pedidos.
+- **Personal y Clientes**: Bases de datos integradas para clientes y asignación de roles al personal (Preparador, Entregador, Mesero, Cajero).
+- **Generación de Reportes**: Visualización analítica de ingresos, salidas de stock y movimientos.
 
-### Características
-- Diseño responsivo que funciona en móviles, tablets y escritorio
-- Interfaz moderna con tema claro/oscuro
-- Tablas interactivas con búsqueda
-- Gráficos y visualización de datos
-- Sistema de alertas y notificaciones
-- Navegación intuitiva entre módulos
+### UI & UX
+- Interfaz moderna, responsiva y adaptable a dispositivos móviles (tema claro/oscuro).
+- Formularios interactivos y validaciones seguras (React Hook Form + Zod).
+- Gráficos integrados (Recharts) y microinteracciones en las vistas.
 
-## 🗄️ Configuración de Base de Datos MySQL
-
-### Paso 1: Variables de Entorno
-Agrega las siguientes variables de entorno en tu proyecto Vercel o archivo `.env.local`:
-
-\`\`\`env
-DB_HOST=tu-host-mysql.com
-DB_USER=tu-usuario
-DB_PASSWORD=tu-contraseña
-DB_NAME=nombre-base-datos
-DB_PORT=tu-puerto
-\`\`\`
-
-### Paso 2: Estructura de Base de Datos Sugerida
-
-\`\`\`sql
--- Tabla de productos
-CREATE TABLE productos (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  nombre VARCHAR(255) NOT NULL,
-  categoria VARCHAR(100),
-  precio DECIMAL(10, 2) NOT NULL,
-  stock INT DEFAULT 0,
-  stock_minimo INT DEFAULT 50,
-  imagen VARCHAR(500),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Tabla de clientes
-CREATE TABLE clientes (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  nombre VARCHAR(255) NOT NULL,
-  email VARCHAR(255),
-  telefono VARCHAR(50),
-  direccion TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Tabla de pedidos
-CREATE TABLE pedidos (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  cliente_id INT,
-  total DECIMAL(10, 2) NOT NULL,
-  subtotal DECIMAL(10, 2),
-  envio DECIMAL(10, 2) DEFAULT 5.00,
-  estado ENUM('Pendiente', 'En Proceso', 'Completado', 'Cancelado') DEFAULT 'Pendiente',
-  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (cliente_id) REFERENCES clientes(id)
-);
-
--- Tabla de items del pedido
-CREATE TABLE pedido_items (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  pedido_id INT,
-  producto_id INT,
-  cantidad INT NOT NULL,
-  precio_unitario DECIMAL(10, 2) NOT NULL,
-  subtotal DECIMAL(10, 2) NOT NULL,
-  FOREIGN KEY (pedido_id) REFERENCES pedidos(id),
-  FOREIGN KEY (producto_id) REFERENCES productos(id)
-);
-
--- Tabla de empleados
-CREATE TABLE empleados (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  nombre VARCHAR(255) NOT NULL,
-  cargo VARCHAR(100),
-  email VARCHAR(255),
-  telefono VARCHAR(50),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-\`\`\`
-
-### Paso 3: Usar las Conexiones en tu Código
-
-La aplicación ya incluye el archivo `lib/db.ts` con las funciones helper para conectar a MySQL:
-
-\`\`\`typescript
-import { query } from '@/lib/db'
-
-// Ejemplo: Obtener todos los pedidos
-const pedidos = await query('SELECT * FROM pedidos ORDER BY fecha DESC')
-
-// Ejemplo: Insertar un nuevo pedido
-const result = await query(
-  'INSERT INTO pedidos (cliente_id, total, estado) VALUES (?, ?, ?)',
-  [clienteId, total, 'Pendiente']
-)
-\`\`\`
-
-## 📦 Instalación
-
-\`\`\`bash
-# Instalar dependencias (si es necesario)
-npm install mysql2
-
-# Ejecutar en desarrollo
-npm run dev
-\`\`\`
+---
 
 ## 🎨 Tecnologías Utilizadas
 
-- **Next.js 16** con App Router
-- **React 19.2**
-- **Tailwind CSS v4**
-- **shadcn/ui** components
-- **MySQL2** para base de datos
-- **TypeScript**
+- **Frontend Core**: Next.js v16 (App Router) + React 19.x + TypeScript.
+- **Estilos**: Tailwind CSS v4 para diseño con utilidades rápidas.
+- **Componentes**: Patrones accesibles de **Radix UI** y **shadcn/ui** integrados.
+- **Iconografía**: Lucide React.
+- **Validaciones**: React Hook Form y Zod.
+- **Gráficos**: Recharts.
 
-## 📱 Rutas de la Aplicación
+---
 
-- `/` - Página principal con acceso a todos los módulos
-- `/dashboard` - Panel de control con métricas
-- `/pedidos` - Lista de pedidos
-- `/pedidos/nuevo` - Crear nuevo pedido
-- `/pedidos/[id]` - Detalle de pedido
-- `/pedidos/[id]/confirmacion` - Confirmación de pedido
-- `/productos` - Gestión de productos
-- `/inventario` - Control de inventario
-- `/reportes` - Generación de reportes
-- `/clientes` - Gestión de clientes y empleados
+## 📂 Estructura del Proyecto
 
-## 🔗 Conectar con tu Base de Datos Existente
+La organización principal sigue los estándares modernos de Next.js:
 
-Como mencionaste que ya tienes una base de datos MySQL deployada:
+```text
+StarBugs-Coffee/
+├── app/                  # Directorio central App Router
+│   ├── api/              # Proxy Endpoints de Next.js
+│   ├── dashboard/        # Vista principal estadística
+│   ├── pedidos/          # Gestión y creación de órdenes (Local/Domicilio)
+│   ├── clientes/         # Administración de clientes registrados
+│   ├── productos/        # Catálogo de productos disponibles
+│   ├── inventario/       # Carga y revisión de insumos/materiales
+│   ├── proveedores/      # Administración de proveedores
+│   ├── reportes/         # Panel de reportes de ventas
+│   └── (Otras vistas)
+├── components/           # Componentes UI reutilizables (Botones, Modales, Tarjetas)
+├── hooks/                # Hooks personalizados de lógica de React
+├── lib/                  # Código y lógica global 
+│   └── api.ts            # Utilidad principal que conecta con la API externa en Render
+├── public/               # Imágenes, SVGs y fuentes estáticas
+├── styles/               # Definiciones globales de CSS
+├── next.config.mjs       # Configuración global del framework Next.js
+├── tailwind.config.*     # Configuración de los temas y variables de diseño
+└── package.json          # Dependencias NPM de la aplicación web
+```
 
-1. Obtén las credenciales de conexión (host, usuario, contraseña, nombre de BD)
-2. Agrégalas como variables de entorno en tu proyecto
-3. Adapta las consultas SQL en los endpoints de la API según tu esquema existente
-4. La aplicación usará el pool de conexiones configurado en `lib/db.ts`
+---
 
-¡Tu aplicación está lista para conectarse a tu base de datos MySQL existente!
+## 🌐 Arquitectura y Conexiones API (Endpoints)
+
+La plataforma utiliza una arquitectura separada (Client-Proxy-Server). Toda la interacción está configurada para conectar a un backend REST externo de manera centralizada.
+
+### 1. El Cliente Global (`lib/api.ts`)
+El frontend envía todas las peticiones a un servicio alojado en Render:
+- **API URL Base:** `https://api-starbugs.onrender.com`
+- Utiliza la función wrapper `apiFetch` que configura el encabezado estandarizado (`application/json`) y maneja o mitiga los errores de respuesta de forma global.
+
+### 2. Capa Proxy (Next.js API Routes)
+Para evitar problemas de CORS y empaquetar de forma estructurada las consultas, todas las llamadas del frontend apuntan primero hacia rutas internas dentro de la carpeta `app/api/`. Estas reciben la petición en Next.js y luego hacen forward (proxy) de la solicitud a la URL de Render.
+
+#### Endpoints Internos que actúan como puentes:
+- `/api/categorias` - Listado y gestión de categorías de productos.
+- `/api/clientes` - Clientes (GET, POST, GET by id).
+- `/api/estados` - Catálogo de estados de pedidos.
+- `/api/facturas` - Consumo y creación de recibos.
+- `/api/insumos` e `/api/insumos-materiales` - Control de stock.
+- `/api/mesas` - Listado de mesas (Capacidad, Estados, Ubicación).
+- `/api/movimientos` - Histórico de salidas o entradas de stock.
+- `/api/pedidos` - Generación de comandas (GET, POST, PUT, DELETE).
+- `/api/personas` - Personal y cargos (Preparadores, Cajeros, etc).
+- `/api/productos` - Ítems para venta general.
+- `/api/proveedores` - Gestión de terceros.
+- `/api/recetas` - Ensamblado de productos.
+- `/api/reportes` - Información consolidada para gráficas.
+- `/api/roles` - Permisos del sistema y etiquetas.
+
+---
+
+## 📱 Rutas de la Aplicación (Frontend)
+
+Módulos principales a los que puede acceder mediante la navegación:
+
+- `/` - Página de presentación u Onboarding principal.
+- `/dashboard` - Panel analítico con indicadores principales.
+- `/pedidos` - Tabla base de historial de todos los pedidos.
+- `/pedidos/nuevo` - Interfaz para crear una orden (Seleccionar mesas, productos y cliente).
+- `/pedidos/[id]` - Pestaña de inspección de un pedido (Para accionar cambios de estado y preparadores).
+- `/productos` - Panel visual del catálogo de los cafés y repostería.
+- `/inventario` - Acceso a materias primas e insumos contabilizados.
+- `/clientes` y `/proveedores` - Relaciones de negocio y tablas informativas.
+- `/facturas` y `/reportes` - Consolidado de tickets procesados y gráficos de corte mensual.
+
+---
+
+## 📦 Instalación y Ejecución Local
+
+Si deseas correr la aplicación internamente para fines de desarrollo o integración de mejoras, sigue esta guía:
+
+### Prerrequisitos
+- **Node.js** (v18.x o superior)
+- Conexión a internet ininterrumpida que pueda conectarse con `https://api-starbugs.onrender.com`.
+
+### 1. Clonar este Proyecto
+```bash
+git clone https://github.com/rmedina13118/StarBugs-Coffee.git
+cd StarBugs-Coffee
+```
+
+### 2. Instalar Dependencias del Frontend
+El entorno usa NPM para empaquetar, aunque puedes usar Yarn, pnpm o Bun.
+```bash
+# Instalación de paquetes
+npm install
+```
+
+*(Opcional - Solución al límite de Inotify Files)*
+En algunas configuraciones y distribuciones de Linux es posible que Next.js agote el número de watchers. Para incrementar el límite corre:
+```bash
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+```
+
+### 3. Ejecutar el Servidor Local
+Despliega la aplicación en formato `dev` para permitir Recarga Automática:
+```bash
+npm run dev
+```
+
+### 4. Abrir la Aplicación
+Dirígete a tu navegador en la siguiente dirección:
+📍 **`http://localhost:3000`**
+
+Dada la arquitectura construida, las peticiones hacia la base de datos se harán en automático y de manera remota consumiendo la URL de Render integrada en la configuración proxy local, por lo que no necesitarás desplegar un servidor DB MySQL en tu máquina.
